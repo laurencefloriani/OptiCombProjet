@@ -96,7 +96,7 @@ class Tuple{
     }
 
     void setProbability(float probability) {
-        this.probability = probability;
+        this.probability = roundToN(probability, 3);
     }
 
     void setLinked() {
@@ -105,6 +105,10 @@ class Tuple{
 
     @Override
     public String toString() {
-        return "<" + linked + ";" + probability + ">";
+        return " <" + linked + ";" + probability + "> ";
     }
+     private float roundToN(float f, int n) {
+        return (float) Math.round(f*Math.pow(10, n))/ (float) Math.pow(10, n);
+     }
+
 }

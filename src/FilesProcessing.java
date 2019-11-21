@@ -9,7 +9,7 @@ import java.util.StringTokenizer;
 
 class FilesProcessing {
 
-    static void readFile(String name) {
+    static Graph readFile(String name) {
         try {
             FileInputStream fis = new FileInputStream(new File(name+".txt"));
             InputStreamReader ipsr = new InputStreamReader(fis);
@@ -45,10 +45,11 @@ class FilesProcessing {
                 n++;
             }
             br.close();
-            Graph graph = new Graph(edges, vertices, head, succ);
+            return new Graph(edges, vertices, head, succ);
         } catch (IOException e) {
             System.out.println(e.toString());
         }
+        return null;
     }
 }
 
