@@ -18,6 +18,6 @@ public class Main {
         l2.add(5);
         l2.add(6);
         list.add(l2);
-        System.out.println(Simulation.computeM(list, graph.getVertices()));
+        System.out.println(Simulation.computeM(list, graph.getEdges()));
     }
 }

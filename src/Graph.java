@@ -17,19 +17,16 @@ class Graph {
         matrix = buildMatrix();
     }
 
-    Tuple[][] buildMatrix() {
+    private Tuple[][] buildMatrix() {
         Tuple[][] matr = new Tuple[vertices][vertices];
-        // construire une matrives de 0
+        // construire une matrices de 0
         for (int i=0; i < matr.length; i++) {
             for (int j=0; j < matr[i].length; j++) {
                 matr[i][j] = new Tuple(0);
             }
         }
 
-
-
-
-        // compléter la matrice avec les bons 1
+        // compléter la matrice avec les 1 aux bons endroits
         for(int i = 0; i < head.size()-1; i++) {
             int start = head.get(i)-1;
             int end = head.get(i+1)-1;
@@ -39,20 +36,16 @@ class Graph {
             }
         }
 
-        // compléter les probabilités
-        for (int i=0; i < matr.length; i++) {
-            float di = 0;
-            for (int j=0; j < matr[i].length; j++) {
-                if(matr[i][j].getLinked() == 1) {
-                    di++;
+        // Compléter la matrice avec les probabilités
+        for (int i=0; i<matr.length; i++) {
+            for (int j=0; j<matr.length; j++) {
+                int di = 0;
+                int dj = 0;
+                for (int k=0; k<matr.length; k++) {
+                    di += matr[i][k].getLinked();
+                    dj += matr[k][j].getLinked();
                 }
-                float dj = 0;
-                for(int k=0; k<matr.length; k++) {
-                    if(matr[k][j].getLinked() == 1) {
-                        dj++;
-                    }
-                }
-                matr[i][j].setProbability((di*dj)/(2*edges));
+                matr[i][j].setProbability(di*dj);
             }
         }
         return matr;
@@ -77,6 +70,11 @@ class Graph {
     int getVertices() {
         return this.vertices;
     }
+
+    int getEdges() {
+        return this.edges;
+    }
+
     void printMatrix() {
         for (int i=0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[i].length; j++) {
@@ -89,7 +87,7 @@ class Graph {
 
 class Tuple{
     private int linked;
-    private float probability;
+    private int probability; // entier pour éviter les erreurs d'arrondi dû a la division
 
     Tuple(int linked) {
         this.linked = linked;
@@ -104,8 +102,8 @@ class Tuple{
         return this.probability;
     }
 
-    void setProbability(float probability) {
-        this.probability = roundToN(probability, 3);
+    void setProbability(int probability) {
+        this.probability = probability;
     }
 
     void setLinked() {
