@@ -7,21 +7,22 @@ class Graph {
     private int vertices;
     private List<Integer> head;
     private List<Integer> succ;
-    private Tuple[][] matrix;
+    static Tuple[][] matrix;
 
     Graph(int edges, int vertices, List<Integer> head, List<Integer> succ) {
         this.edges = edges;
         this.vertices = vertices;
         this.head = head;
         this.succ = succ;
+        matrix = buildMatrix();
     }
 
-    void buildMatrix() {
+    Tuple[][] buildMatrix() {
+        Tuple[][] matr = new Tuple[vertices][vertices];
         // construire une matrives de 0
-        matrix =  new Tuple[vertices][vertices];
-        for (int i=0; i < matrix.length; i++) {
-            for (int j=0; j < matrix[i].length; j++) {
-                matrix[i][j] = new Tuple(0);
+        for (int i=0; i < matr.length; i++) {
+            for (int j=0; j < matr[i].length; j++) {
+                matr[i][j] = new Tuple(0);
             }
         }
 
@@ -33,27 +34,28 @@ class Graph {
             int start = head.get(i)-1;
             int end = head.get(i+1)-1;
             while (start < end) {
-                matrix[i][succ.get(start)-1].setLinked();
+                matr[i][succ.get(start)-1].setLinked();
                 start++;
             }
         }
 
         // compléter les probabilités
-        for (int i=0; i < matrix.length; i++) {
+        for (int i=0; i < matr.length; i++) {
             float di = 0;
-            for (int j=0; j < matrix[i].length; j++) {
-                if(matrix[i][j].getLinked() == 1) {
+            for (int j=0; j < matr[i].length; j++) {
+                if(matr[i][j].getLinked() == 1) {
                     di++;
                 }
                 float dj = 0;
-                for(int k=0; k<matrix.length; k++) {
-                    if(matrix[k][j].getLinked() == 1) {
+                for(int k=0; k<matr.length; k++) {
+                    if(matr[k][j].getLinked() == 1) {
                         dj++;
                     }
                 }
-                matrix[i][j].setProbability((di*dj)/(2*edges));
+                matr[i][j].setProbability((di*dj)/(2*edges));
             }
         }
+        return matr;
     }
 
     void setEdges(int edges) {
@@ -72,6 +74,9 @@ class Graph {
         this.succ.add(x);
     }
 
+    int getVertices() {
+        return this.vertices;
+    }
     void printMatrix() {
         for (int i=0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[i].length; j++) {
@@ -93,6 +98,10 @@ class Tuple{
 
     int getLinked() {
         return linked;
+    }
+
+    float getProbability() {
+        return this.probability;
     }
 
     void setProbability(float probability) {
