@@ -114,8 +114,5 @@ class Tuple{
     public String toString() {
         return " <" + linked + ";" + probability + "> ";
     }
-     private float roundToN(float f, int n) {
-        return (float) Math.round(f*Math.pow(10, n))/ (float) Math.pow(10, n);
-     }
 
 }

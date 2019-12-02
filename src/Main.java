@@ -8,15 +8,8 @@ public class Main {
         Graph graph = FilesProcessing.readFile("assets/instance0");
         graph.printMatrix();
 
-        int n = Graph.getVertices();
-
-        Solutions sol = MockAnnealing.initSolutions();
-        for(List<Integer> ll : sol.getSolutions()) {
-            System.out.print("COM : ");
-            for (int i : ll) {
-                System.out.print(i + " ");
-            }
-            System.out.println();
-        }
+        MockAnnealing mock = new MockAnnealing(50);
+        Solutions sol = mock.initSolutions();
+        System.out.println(sol.toString());
     }
 }

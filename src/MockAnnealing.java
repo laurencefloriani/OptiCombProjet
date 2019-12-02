@@ -11,7 +11,7 @@ public class MockAnnealing {
         this.n = Graph.getVertices();
     }
 
-    private Solutions initSolutions() {
+    Solutions initSolutions() {
         List<Integer> used = new ArrayList<Integer>(n);
 
         // Tirage aléatoire d'un nombre de communauté
@@ -52,49 +52,4 @@ public class MockAnnealing {
         return new Solutions(solutions);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-/**
-    private Solutions mutation(Solutions solutions) {
-        List<List<Integer>> copy = solutions.getSolutions();
-        int indexCom1 = (int) (Math.random()*copy.size());
-
-        while (copy.get(indexCom1).isEmpty()) {
-            indexCom1=(int)(Math.random()*copy.size());
-        }
-
-        int indexCom2 = (int) (Math.random()*copy.size());
-
-        // Pour être sûr d'avoir deux communautés différentes
-        if (copy.size() != 1) {
-            while (indexCom1 == indexCom2) {
-                indexCom2 = (int) (Math.random()*copy.size());
-            }
-        }
-
-        int indexVertice1 = (int) (Math.random()*copy.size());
-        int indexVertice2 = (int) (Math.random()*copy.size());
-
-        int vertice1 = copy.get(indexCom1).get(indexVertice1);
-        int vertice2;
-        if(!copy.get(indexCom2).isEmpty()) {
-            vertice2 = copy.get(indexCom2).get(indexVertice2);
-            copy.get(indexCom1).set(indexVertice1, vertice2);
-            copy.get(indexCom2).set(indexVertice2, vertice1);
-        } else {
-            copy.get(indexCom2).add(vertice1);
-            copy.get(indexCom1).remove(indexVertice1);
-        }
-        return new Solutions(copy);
-    }**/
 }

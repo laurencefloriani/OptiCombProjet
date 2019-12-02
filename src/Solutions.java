@@ -27,4 +27,18 @@ public class Solutions {
         return solutions;
     }
 
+    @Override
+    public String toString() {
+        String str = "";
+        for (List<Integer> com : solutions) {
+            str += "COM : ";
+            for (int edge : com) {
+                str += edge;
+                str += " ";
+            }
+            str += "\n";
+        }
+        return str;
+    }
+
 }
