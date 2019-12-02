@@ -1,23 +1,22 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
 
     public static void main(String[] args) {
         Graph graph = FilesProcessing.readFile("assets/instance0");
         graph.printMatrix();
-        List <List<Integer>> list = new ArrayList<List<Integer>>();
-        List <Integer> l = new ArrayList<>();
-        l.add(1);
-        l.add(2);
-        l.add(3);
-        list.add(l);
 
-        List <Integer> l2 = new ArrayList<>();
-        l2.add(4);
-        l2.add(5);
-        l2.add(6);
-        list.add(l2);
-        System.out.println(Simulation.computeM(list, graph.getEdges()));
+        int n = Graph.getVertices();
+
+        Solutions sol = MockAnnealing.initSolutions();
+        for(List<Integer> ll : sol.getSolutions()) {
+            System.out.print("COM : ");
+            for (int i : ll) {
+                System.out.print(i + " ");
+            }
+            System.out.println();
+        }
     }
 }

@@ -1,12 +1,16 @@
-import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
-class Simulation {
+public class Solutions {
+    private List<List<Integer>> solutions;
 
-    static float computeM(List<List<Integer>> lists , int m ){
+    Solutions(List<List<Integer>> solutions) {
+        this.solutions = solutions;
+    }
+
+    float computeM(){
+        int m = Graph.getEdges();
         float mP = 0;
-        for (List<Integer > list :lists  ) {
+        for (List<Integer > list : solutions  ) {
             float temp = 0;
             for ( int i : list) {
                 for(int j : list) {
@@ -18,4 +22,9 @@ class Simulation {
         }
         return mP/(2*m);
     }
+
+    List<List<Integer>> getSolutions() {
+        return solutions;
+    }
+
 }

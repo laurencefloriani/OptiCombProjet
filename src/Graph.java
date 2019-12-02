@@ -3,15 +3,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 class Graph {
-    private int edges;
-    private int vertices;
+    private static int edges;
+    private static int vertices;
     private List<Integer> head;
     private List<Integer> succ;
     static Tuple[][] matrix;
 
-    Graph(int edges, int vertices, List<Integer> head, List<Integer> succ) {
-        this.edges = edges;
-        this.vertices = vertices;
+    Graph(int edges1, int vertices1, List<Integer> head, List<Integer> succ) {
+        edges = edges1;
+        vertices = vertices1;
         this.head = head;
         this.succ = succ;
         matrix = buildMatrix();
@@ -67,12 +67,12 @@ class Graph {
         this.succ.add(x);
     }
 
-    int getVertices() {
-        return this.vertices;
+    static int getVertices() {
+        return vertices;
     }
 
-    int getEdges() {
-        return this.edges;
+    static int getEdges() {
+        return edges;
     }
 
     void printMatrix() {
