@@ -2,9 +2,11 @@ import java.util.List;
 
 public class Solutions {
     private List<List<Integer>> solutions;
+    private float mP;
 
     Solutions(List<List<Integer>> solutions) {
         this.solutions = solutions;
+        this.mP = computeM();
     }
 
     float computeM(){
@@ -27,6 +29,15 @@ public class Solutions {
         return solutions;
     }
 
+    float getmP() {
+        return mP;
+    }
+
+    public void setSolutions(List<List<Integer>> solutions) {
+        this.solutions = solutions;
+        this.mP = computeM();
+    }
+
     @Override
     public String toString() {
         String str = "";
@@ -41,4 +52,23 @@ public class Solutions {
         return str;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if(!(o instanceof Solutions)) {
+            return false;
+        } else {
+            for (List<Integer> com1 : solutions) {
+                for (int edge1 : com1) {
+                    for (List<Integer> com2 : ((Solutions) o).getSolutions()) {
+                        for (int edge2 : com2) {
+                            if (edge1 != edge2) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+    }
 }
