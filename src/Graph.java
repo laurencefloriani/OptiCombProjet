@@ -83,6 +83,111 @@ class Graph {
             System.out.println();
         }
     }
+    public void getBestNodes(){
+        /*
+        Methode pour selectionner les elements les plus importants de la matrice du point de vu de notre raisonnement
+         */
+        for (int i = 0 ; i< matrix.length; i++){
+            for (int j = 0 ; j< matrix.length; j++){
+                if(matrix[i][j].getLinked() ==1 && matrix[i][j].getProbability() <= average){
+                    Integer temp[] = new Integer[] {i,j};
+                    bestNodes.add(temp);
+                    System.out.println(matrix[i][j] + " i = " + i + " j = " +j);
+                    System.out.println("temp[0] = " + temp[0] +" , temp[1] ="+ temp[1] +" <"+ matrix[temp[0]][temp[1]].getLinked()
+                            +","+  matrix[temp[0]][temp[1]].getProbability()+">");
+
+                }
+
+            }
+        }
+
+    }
+
+    /*  select_different_indices(){
+
+      }*/
+    public  ArrayList<Integer[]> completeCommunity(ArrayList<Integer[]> indices){
+        ArrayList<Integer[]> temp =  new ArrayList<Integer[]>();
+        ArrayList<Integer[]> compare = indices;
+        for(Integer [] t : indices){
+            System.out.println("<"+t[0]+","+ t[1]+">");
+            System.out.println("-------------------------------------------------");
+        }
+        for (Integer[] indice : indices){
+            temp.add(indice);
+            for(Integer[] a : compare){
+                if(indice != a){
+                    Integer [] tempo = new Integer []{indice[0], a[1]};
+                    if(!temp.contains(tempo)) {
+                        temp.add(tempo);
+                    }
+                    //  temp.add(tempo);
+                }
+            }
+            for(Integer[] a : compare){
+                if(indice != a){
+                    Integer [] tempo = new Integer []{indice[1], a[0]};
+                    if(!temp.contains(tempo)) {
+                        temp.add(tempo);
+                    }
+                }
+            }
+        }
+        return temp;
+    }
+    public ArrayList<Integer> findNode(ArrayList<Integer[]> array ){
+
+        ArrayList<Integer> result = new ArrayList<>();
+        for (Integer [] t: array ) {
+            if(!result.contains(t[0])){
+                result.add(t[0]);
+            }
+            if(!result.contains(t[1])){
+                result.add(t[1]);
+            }
+        }
+        return result ;
+    }
+    float computeM(ArrayList<Integer[]> array){
+        float temp = 0;
+        int m = Graph.getEdges();
+        for (Integer [] t :array) {
+            temp += matrix[t[0]][t[1]].getLinked() - matrix[t[0]][t[1]].getProbability()/(2*m);
+        }
+
+        System.out.println("m = " + m);
+        return temp/(2*m);
+    }
+    public void tries(ArrayList<Integer[]> array){
+        int n = 5+6;
+        ArrayList<Integer[]> tocompute =  new ArrayList<>();
+        for (int i =8; i< n ; i++){
+            tocompute.add(array.get(i));
+        }
+        ArrayList<Integer> result =  findNode(tocompute);
+        tocompute.clear();
+        tocompute = makeall(result);
+        float reponse = computeM(tocompute);
+        System.out.println("Mp de la partition selectionnée est " + reponse );
+
+
+    }
+
+    public  ArrayList<Integer[]> makeall(ArrayList<Integer > array){
+        ArrayList<Integer > liste = array;
+        ArrayList<Integer[] > tempip = new ArrayList<>();
+        for(Integer entier : array){
+            for(Integer i : liste){
+                Integer [] temp = new Integer []{entier , i};
+                if(!tempip.contains(temp)){
+                    tempip.add(temp);
+                }
+            }
+
+        }
+        return tempip;
+
+    }
 }
 
 class Tuple{
