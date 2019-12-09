@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class MockAnnealing {
+    private Graph graph;
     private int initTemp;
-    private int n;
     private float MPTRESHOLD = 0.357f;
 
-    public MockAnnealing(int initTemp) {
+    public MockAnnealing(int initTemp, String name) {
         this.initTemp = initTemp;
-        this.n = Graph.getVertices();
+        this.graph =  FilesProcessing.readFile(name);
         start();
     }
 
@@ -18,70 +18,52 @@ public class MockAnnealing {
         Solutions solutions = generateSolution();
         System.out.println(solutions.toString() + " M(P) : " + solutions.getmP());
         while(solutions.getmP() < MPTRESHOLD) {
-            for(List<Integer> l : solutions.getSolutions()) {
-                if(l.size() == 1) {
-                    decraeseNbrCom(solutions);
-                }
-            }
+
             mutation(solutions);
             System.out.println(solutions.toString() + " M(P) : " + solutions.getmP());
         }
     }
 
-    private void decraeseNbrCom(Solutions solutions) {
-        List<List<Integer>> list = solutions.getSolutions();
-        if(list.size() > 1) {
-            int newNbreCom = ThreadLocalRandom.current().nextInt(0, list.size());
-            while (list.size() != newNbreCom) {
-                int indexCom1 = ThreadLocalRandom.current().nextInt(0, list.size());
-                int indexCom2 = ThreadLocalRandom.current().nextInt(0, list.size());
 
-                List<Integer> com = list.get(indexCom1);
-                com.addAll(list.get(indexCom2));
 
-                list.remove(indexCom1);
-                list.remove(indexCom2);
 
-                Collections.sort(com);
-                list.add(com);
-            }
-        }
-    }
 
     private void mutation(Solutions solutions) {
         List<List<Integer>> list = solutions.getSolutions();
-
-        int indexCom1 = ThreadLocalRandom.current().nextInt(0, list.size());
-        int indexCom2 = ThreadLocalRandom.current().nextInt(0, list.size());
-
-        // Travailler dans deux communautés différentes
-        if (list.size() != 1) {
-            while (indexCom1 == indexCom2) {
-                indexCom2 = ThreadLocalRandom.current().nextInt(0, list.size());;
+        for(List<Integer> com : list) {
+            int friend;
+            List<Integer> friends = new ArrayList<Integer>();
+            List<Integer> ennemies = new ArrayList<Integer>();
+            for(int v : com) {
+                friends = searchBestFriend(v, graph.getMatrix(), true);
+                ennemies = searchBestFriend(v, graph.getMatrix(), false);
             }
+            int en = ennemies.get(ThreadLocalRandom.current().nextInt(0, ennemies.size()));
+            if(com.contains(en) && com.size() > 1) {
+                int r = getIndexToRemove(com, en);
+                System.out.println("r " + r + " en " + en);
+                com.remove(r);
+            }
+            com.add(friends.get(ThreadLocalRandom.current().nextInt(0, friends.size())));
+
         }
-
-        int indexEdge1 = ThreadLocalRandom.current().nextInt(0, list.get(indexCom1).size());
-        int indexEdge2 = ThreadLocalRandom.current().nextInt(0, list.get(indexCom2).size());
-
-        int edge1 = list.get(indexCom1).get(indexEdge1);
-        int edge2;
-        if (!list.get(indexCom2).isEmpty()) {
-
-            edge2 = list.get(indexCom2).get(indexEdge2);
-            list.get(indexCom1).set(indexEdge1, edge2);
-            list.get(indexCom2).set(indexEdge2, edge1);
-        } else {
-            list.get(indexCom2).add(edge1);
-            list.get(indexCom1).remove(indexEdge1);
-        }
-        solutions.setSolutions(list);
+        solutions.setSolutions(list, graph.getEdges());
     }
 
+    private int getIndexToRemove (List<Integer> list, int v) {
+        int i = 0;
+        while (i < list.size() && list.get(i) != v) {
+            i++;
+        }
+        return i;
+    }
+    //TODO faire en sorte que tous les sommets soient au moins dans une communauté
     private Solutions generateSolution() {
+        int n = graph.getVertices();
         List<Integer> used = new ArrayList<Integer>(n);
 
         // Tirage aléatoire d'un nombre de communauté (si n communauté => 1 sommet par com => useless
+        System.out.println(n);
         int numberCom = ThreadLocalRandom.current().nextInt(1, n/2);
         List<List<Integer>> solutions = new ArrayList<List<Integer>>(numberCom);
 
@@ -117,7 +99,44 @@ public class MockAnnealing {
             Collections.sort(com);
             solutions.add(com);
         }
-        Solutions sol = new Solutions(solutions);
+        Solutions sol = new Solutions(solutions, graph.getEdges());
         return sol;
+    }
+
+    private List<Integer> searchBestFriend(int vertice, Tuple[][] matrix, boolean bool) {
+        List<Integer> temp = new ArrayList<Integer>();
+        for(int i = 0; i < matrix.length; i++) {
+            if(bool) {
+                if (matrix[vertice - 1][i].getLinked() == 1) {
+                    temp.add(i + 1);
+                }
+            } else {
+                if (matrix[vertice - 1][i].getLinked() == 0) {
+                    temp.add(i + 1);
+                }
+            }
+        }
+        return temp;
+    }
+
+
+    private void decraeseNbrCom(Solutions solutions) {
+        List<List<Integer>> list = solutions.getSolutions();
+        if(list.size() > 1) {
+            int newNbreCom = ThreadLocalRandom.current().nextInt(0, list.size());
+            while (list.size() != newNbreCom) {
+                int indexCom1 = ThreadLocalRandom.current().nextInt(0, list.size()-1);
+                int indexCom2 = ThreadLocalRandom.current().nextInt(0, list.size()-1);
+
+                List<Integer> com = list.get(indexCom1);
+                com.addAll(list.get(indexCom2));
+
+                list.remove(indexCom1);
+                list.remove(indexCom2);
+
+                Collections.sort(com);
+                list.add(com);
+            }
+        }
     }
 }

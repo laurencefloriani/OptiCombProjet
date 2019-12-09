@@ -4,19 +4,19 @@ public class Solutions {
     private List<List<Integer>> solutions;
     private float mP;
 
-    Solutions(List<List<Integer>> solutions) {
+    Solutions(List<List<Integer>> solutions, int m) {
         this.solutions = solutions;
-        this.mP = computeM();
+        this.mP = computeM(m);
     }
 
-    float computeM(){
-        int m = Graph.getEdges();
+    private float computeM(int m){
         float mP = 0;
         for (List<Integer > list : solutions  ) {
             float temp = 0;
             for ( int i : list) {
                 for(int j : list) {
                     // -1 à chaque sommet car matrice indicée à partir de 0 et nom des sommets donnés à partir de 1
+                    System.out.println("i " + i + " j " + j);
                     temp += Graph.matrix[i-1][j-1].getLinked() - Graph.matrix[i-1][j-1].getProbability()/(2*m);
                 }
             }
@@ -33,9 +33,9 @@ public class Solutions {
         return mP;
     }
 
-    public void setSolutions(List<List<Integer>> solutions) {
+    public void setSolutions(List<List<Integer>> solutions, int m) {
         this.solutions = solutions;
-        this.mP = computeM();
+        this.mP = computeM(m);
     }
 
     @Override

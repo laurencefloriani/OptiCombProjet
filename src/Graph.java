@@ -3,11 +3,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 class Graph {
-    private static int edges;
-    private static int vertices;
+    private int edges;
+    private int vertices;
     private List<Integer> head;
     private List<Integer> succ;
     static Tuple[][] matrix;
+    private float average;
+    private List<Integer[]> bestBows;
 
     Graph(int edges1, int vertices1, List<Integer> head, List<Integer> succ) {
         edges = edges1;
@@ -18,9 +20,6 @@ class Graph {
     }
 
     private Tuple[][] buildMatrix() {
-
-        float highest =0;
-        float lowest = 2000;
         Tuple[][] matr = new Tuple[vertices][vertices];
         // construire une matrices de 0
         for (int i=0; i < matr.length; i++) {
@@ -48,43 +47,35 @@ class Graph {
                     di += matr[i][k].getLinked();
                     dj += matr[k][j].getLinked();
                 }
-                matr[i][j].setProbability(di*dj);
-                if(lowest > di*dj){
-                    lowest = di*dj;
-                    // System.out.println(" valeur de lowest" + lowest);
-
-                }
-                if(highest < di*dj ){
-                    highest = di*dj;
-                    // System.out.println(" valeur de highest" + highest);
-                }
+                int proba = di*dj;
+                this.average = (this.average + proba)/2;
+                matr[i][j].setProbability(proba);
             }
         }
-        this.average = (highest +lowest)/2;
         return matr;
     }
 
-    void setEdges(int edges) {
-        this.edges = edges;
+    void setEdges(int e) {
+        edges = e;
     }
 
-    void setVertices(int vertices) {
-        this.vertices = vertices;
+    void setVertices(int v) {
+        vertices = v;
     }
 
-    public void addInHead(int x) {
+    private void addInHead(int x) {
         this.head.add(x);
     }
 
-    public void addInSucc(int x) {
+    private void addInSucc(int x) {
         this.succ.add(x);
     }
 
-    static int getVertices() {
+    int getVertices() {
         return vertices;
     }
 
-    static int getEdges() {
+    int getEdges() {
         return edges;
     }
 
@@ -96,36 +87,26 @@ class Graph {
             System.out.println();
         }
     }
-    public void getBestNodes(){
-        /*
-        Methode pour selectionner les elements les plus importants de la matrice du point de vu de notre raisonnement
-         */
+
+    Tuple[][] getMatrix() {
+        return this.matrix;
+    }
+/**
+    private void searchBestBows(){
+        // Methode pour selectionner les elements les plus importants de la matrice du point de vu de notre raisonnement
         for (int i = 0 ; i< matrix.length; i++){
             for (int j = 0 ; j< matrix.length; j++){
                 if(matrix[i][j].getLinked() ==1 && matrix[i][j].getProbability() <= average){
-                    Integer temp[] = new Integer[] {i,j};
-                    bestNodes.add(temp);
-                    System.out.println(matrix[i][j] + " i = " + i + " j = " +j);
-                    System.out.println("temp[0] = " + temp[0] +" , temp[1] ="+ temp[1] +" <"+ matrix[temp[0]][temp[1]].getLinked()
-                            +","+  matrix[temp[0]][temp[1]].getProbability()+">");
-
+                    bestBows.add(new Integer[] {i,j});
                 }
-
             }
         }
-
     }
 
-    /*  select_different_indices(){
-
-      }*/
-    public  ArrayList<Integer[]> completeCommunity(ArrayList<Integer[]> indices){
+    private  ArrayList<Integer[]> completeCommunity(ArrayList<Integer[]> indices){
         ArrayList<Integer[]> temp =  new ArrayList<Integer[]>();
-        ArrayList<Integer[]> compare = indices;
-        for(Integer [] t : indices){
-            System.out.println("<"+t[0]+","+ t[1]+">");
-            System.out.println("-------------------------------------------------");
-        }
+        ArrayList<Integer[]> compare = indices; // REDONDANT INUTILE CAR PAS MAJ
+
         for (Integer[] indice : indices){
             temp.add(indice);
             for(Integer[] a : compare){
@@ -148,8 +129,8 @@ class Graph {
         }
         return temp;
     }
-    public ArrayList<Integer> findNode(ArrayList<Integer[]> array ){
 
+    private List<Integer> findNode(List<Integer[]> array ){
         ArrayList<Integer> result = new ArrayList<>();
         for (Integer [] t: array ) {
             if(!result.contains(t[0])){
@@ -161,6 +142,7 @@ class Graph {
         }
         return result ;
     }
+
     float computeM(ArrayList<Integer[]> array){
         float temp = 0;
         int m = Graph.getEdges();
@@ -171,22 +153,21 @@ class Graph {
         System.out.println("m = " + m);
         return temp/(2*m);
     }
+
     public void tries(ArrayList<Integer[]> array){
         int n = 5+6;
         ArrayList<Integer[]> tocompute =  new ArrayList<>();
         for (int i =8; i< n ; i++){
             tocompute.add(array.get(i));
         }
-        ArrayList<Integer> result =  findNode(tocompute);
+        List<Integer> result =  findNode(tocompute);
         tocompute.clear();
         tocompute = makeall(result);
         float reponse = computeM(tocompute);
         System.out.println("Mp de la partition selectionnée est " + reponse );
-
-
     }
 
-    public  ArrayList<Integer[]> makeall(ArrayList<Integer > array){
+    private ArrayList<Integer[]> makeall(ArrayList<Integer > array){
         ArrayList<Integer > liste = array;
         ArrayList<Integer[] > tempip = new ArrayList<>();
         for(Integer entier : array){
@@ -196,11 +177,11 @@ class Graph {
                     tempip.add(temp);
                 }
             }
-
         }
         return tempip;
 
     }
+ **/
 }
 
 class Tuple{
