@@ -4,13 +4,15 @@ import java.util.List;
 public class Solutions {
     private List<List<Integer>> solutions;
     private float mP;
+    private int m;
 
     Solutions(List<List<Integer>> solutions, int m) {
         this.solutions = solutions;
-        this.mP = computeM(m);
+        this.m = m;
+        this.mP = computeM();
     }
 
-    private float computeM(int m){
+    private float computeM(){
         float mP = 0;
         for (List<Integer > list : solutions  ) {
             float temp = 0;
@@ -22,7 +24,6 @@ public class Solutions {
             }
             mP += temp;
         }
-        System.out.println("---------");
         return mP/(2*m);
     }
 
@@ -37,7 +38,7 @@ public class Solutions {
     void setSolutions(List<List<Integer>> solutions, int m) {
         this.solutions = solutions;
         deleteEmptyList();
-        this.mP = computeM(m);
+        this.mP = computeM();
     }
 
     private void deleteEmptyList() {
@@ -45,14 +46,17 @@ public class Solutions {
         while (iterator.hasNext() ) {
             List<Integer> o = iterator.next();
             if (o.size() == 0) {
-                System.out.println(o);
-
                 // On supprime l'élément courant de la liste
                 iterator.remove();
             }
         }
-
     }
+
+    Solutions copy(){
+        Solutions myClone = new Solutions(this.solutions, this.m);
+        return myClone;
+    }
+
     @Override
     public String toString() {
         String str = "";

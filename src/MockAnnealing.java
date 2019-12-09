@@ -21,20 +21,22 @@ class MockAnnealing {
 
     private void start() {
         bestSol = generateSolution();
-        currentSol = bestSol;
+        currentSol = bestSol.copy();
         int u = 1;
+
         while(bestSol.getmP() < MPTRESHOLD) {
             System.out.println("itération : " + u);
             mutation(u);
-
             System.out.println(bestSol.toString() + " M(P) : " + bestSol.getmP());
-            if(currentSol.getmP() >= bestSol.getmP()) {
-                bestSol = currentSol;
+            if(currentSol.getmP() > bestSol.getmP()) {
+                bestSol = currentSol.copy();
             } else {
-                currentSol = bestSol; // Efface cet essai car il est mauvais
+                currentSol = bestSol.copy(); // Efface cet essai car il est mauvais
             }
             u++;
         }
+        System.out.println("La solution est : " + bestSol.getSolutions());
+        System.out.println("Avec un M(P) de : " + bestSol.getmP());
     }
 
     private void mutation(int u) {
@@ -42,7 +44,7 @@ class MockAnnealing {
         int numCom = ThreadLocalRandom.current().nextInt(0, sol.size());
         int numVert = ThreadLocalRandom.current().nextInt(0, sol.get(numCom).size());
 
-        List<Integer> friends = searchBestFriends(sol.get(numCom).get(numVert), graph.getMatrix(), true);
+        List<Integer> friends = searchBestFriends(sol.get(numCom).get(numVert), graph.getMatrix());
         int friend = friends.get(ThreadLocalRandom.current().nextInt(0, friends.size()));
         List<Integer> used = new ArrayList<Integer>();
 
@@ -52,12 +54,13 @@ class MockAnnealing {
         }
         for (List<Integer> com2 : sol) {
             if(com2.contains(friend)) {
-                System.out.println(friend);
                 com2.remove(getIndexToRemove(com2, friend));
             }
         }
-        System.out.println(friend);
         sol.get(numCom).add(friend);
+        for(List<Integer> com : sol) {
+            Collections.sort(com);
+        }
         currentSol.setSolutions(sol, graph.getEdges());
     }
 
@@ -68,13 +71,12 @@ class MockAnnealing {
         }
         return i;
     }
-    //TODO faire en sorte que tous les sommets soient au moins dans une communauté
+
     private Solutions generateSolution() {
         int n = graph.getVertices();
         List<Integer> used = new ArrayList<Integer>(n);
 
         // Tirage aléatoire d'un nombre de communauté (si n communauté => 1 sommet par com => useless
-        System.out.println(n);
         int numberCom = ThreadLocalRandom.current().nextInt(2, n/2);
         List<List<Integer>> solutions = new ArrayList<List<Integer>>(numberCom);
 
@@ -121,28 +123,14 @@ class MockAnnealing {
         }
         Collections.sort(com);
         solutions.add(com);
-        System.out.println("used:"+used);
-
-        /*for (List f : solutions){
-
-            System.out.println("taille com fin"+f.size());
-        }*/
-
-        Solutions sol = new Solutions(solutions, graph.getEdges());
-        return sol;
+        return new Solutions(solutions, graph.getEdges());
     }
 
-    private List<Integer> searchBestFriends(int vertice, Tuple[][] matrix, boolean bool) {
+    private List<Integer> searchBestFriends(int vertice, Tuple[][] matrix) {
         List<Integer> temp = new ArrayList<Integer>();
         for(int i = 0; i < matrix.length; i++) {
-            if(bool) {
-                if (matrix[vertice - 1][i].getLinked() == 1) {
-                    temp.add(i + 1);
-                }
-            } else {
-                if (matrix[vertice - 1][i].getLinked() == 0) {
-                    temp.add(i + 1);
-                }
+            if (matrix[vertice - 1][i].getLinked() == 1) {
+                temp.add(i + 1);
             }
         }
         return temp;
