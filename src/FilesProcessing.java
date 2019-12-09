@@ -1,8 +1,4 @@
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -50,6 +46,29 @@ class FilesProcessing {
             System.out.println(e.toString());
         }
         return null;
+    }
+
+    static void writeInFile(Solutions solutions) {
+        File f =  new File("Solution.txt");
+        String debut = "Après utilisation de la méthode illustree , nous avons trouvé les communautés suivantes : ";
+        String after1 = "le M(P) est : " + solutions.getmP();
+        try{
+            PrintWriter printer = new PrintWriter(f);
+            printer.println(debut);
+            for (List<Integer> com : solutions.getSolutions()) {
+                String str = "COM : ";
+                for (int edge : com) {
+                    str += edge;
+                    str += " ";
+                }
+                str += "\n";
+                printer.println(str);
+            }
+            printer.println(after1);
+
+        } catch(IOException e){
+            System.out.printf("ERROR : %s/n",e);
+        }
     }
 }
 

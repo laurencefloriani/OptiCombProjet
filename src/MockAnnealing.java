@@ -8,15 +8,26 @@ import java.util.concurrent.ThreadLocalRandom;
 
 class MockAnnealing {
     private Graph graph;
-    private int initTemp;
-    private float MPTRESHOLD = 0.357f;
+    private float temp;
+    private float energy;
     private Solutions bestSol;
     private Solutions currentSol;
 
-    MockAnnealing(int initTemp, String name) {
-        this.initTemp = initTemp;
+    private float MPTRESHOLD = 0.357f;
+    private float LAMBDA = 0.99f;
+
+    MockAnnealing(String name) {
         this.graph =  FilesProcessing.readFile(name);
+        this.temp = graph.getEdges()*graph.getVertices();
+        this.energy = temp*4;
         start();
+        System.out.println(bestSol.getmP());
+        if(bestSol.getmP() < MPTRESHOLD) {
+            start();
+        }
+        System.out.println("La solution est : " + bestSol.getSolutions());
+        System.out.println("Avec un M(P) de : " + bestSol.getmP());
+        FilesProcessing.writeInFile(bestSol);
     }
 
     private void start() {
@@ -24,22 +35,43 @@ class MockAnnealing {
         currentSol = bestSol.copy();
         int u = 1;
 
-        while(bestSol.getmP() < MPTRESHOLD) {
+        while(energy > temp) {
             System.out.println("itération : " + u);
-            mutation(u);
-            System.out.println(bestSol.toString() + " M(P) : " + bestSol.getmP());
-            if(currentSol.getmP() > bestSol.getmP()) {
+            System.out.println(bestSol.toString() + "    M(P) : " + bestSol.getmP());
+            float oldMP = bestSol.getmP();
+            int nbre = ThreadLocalRandom.current().nextInt(1, bestSol.getSolutions().size());
+            mutation();
+
+            float newMP;
+            if(currentSol.getmP() >= bestSol.getmP()) {
                 bestSol = currentSol.copy();
+                newMP = bestSol.getmP();
             } else {
                 currentSol = bestSol.copy(); // Efface cet essai car il est mauvais
+                newMP = bestSol.getmP();
             }
+            updateEnergy(oldMP, newMP);
+            updateTemp();
             u++;
+            System.out.println(energy > temp);
+            System.out.println("en " + energy + " t " + temp);
         }
-        System.out.println("La solution est : " + bestSol.getSolutions());
-        System.out.println("Avec un M(P) de : " + bestSol.getmP());
     }
 
-    private void mutation(int u) {
+    private void updateTemp () {
+        temp *= LAMBDA;
+    }
+
+    private void updateEnergy (float oldMP, float newMP) {
+        float deltaEn = newMP - oldMP;
+        if (deltaEn < 0) {
+            energy += deltaEn;
+        } else {
+            energy += (float) Math.exp(-(deltaEn)/temp);
+        }
+    }
+
+    private void mutation() {
         List<List<Integer>> sol = currentSol.getSolutions();
         int numCom = ThreadLocalRandom.current().nextInt(0, sol.size());
         int numVert = ThreadLocalRandom.current().nextInt(0, sol.get(numCom).size());
@@ -135,30 +167,4 @@ class MockAnnealing {
         }
         return temp;
     }
-
-    public void end(){
-        Solutions sol = generateSolution();
-        File f =  new File("Solution.txt");
-        String debut = "Après utilisation de la méthode illustree , nous avons trouvé les communautés suivantes: ";
-        String after1 = "le M(P) est : " + sol.getmP();
-        try{
-            PrintWriter printer = new PrintWriter(f);
-            printer.println(debut);
-            for (List<Integer> com : sol.getSolutions()) {
-                String str = "COM : ";
-                for (int edge : com) {
-                    str += edge;
-                    str += " ";
-                }
-                str += "\n";
-                printer.println(str);
-            }
-            printer.println(after1);
-
-        } catch(IOException e){
-            System.out.printf("ERROR : %s/n",e);
-        }
-
-    }
-
 }
