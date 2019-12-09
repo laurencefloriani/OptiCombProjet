@@ -29,6 +29,7 @@ public class MockAnnealing {
 
 
     private void mutation(Solutions solutions) {
+        
         List<List<Integer>> list = solutions.getSolutions();
         for(List<Integer> com : list) {
             int friend;
