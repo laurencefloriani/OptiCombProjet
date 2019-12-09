@@ -18,6 +18,9 @@ class Graph {
     }
 
     private Tuple[][] buildMatrix() {
+
+        float highest =0;
+        float lowest = 2000;
         Tuple[][] matr = new Tuple[vertices][vertices];
         // construire une matrices de 0
         for (int i=0; i < matr.length; i++) {
@@ -46,8 +49,18 @@ class Graph {
                     dj += matr[k][j].getLinked();
                 }
                 matr[i][j].setProbability(di*dj);
+                if(lowest > di*dj){
+                    lowest = di*dj;
+                    // System.out.println(" valeur de lowest" + lowest);
+
+                }
+                if(highest < di*dj ){
+                    highest = di*dj;
+                    // System.out.println(" valeur de highest" + highest);
+                }
             }
         }
+        this.average = (highest +lowest)/2;
         return matr;
     }
 
