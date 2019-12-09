@@ -100,9 +100,27 @@ public class MockAnnealing {
                     com.add(edge);
                 }
             }
+
             Collections.sort(com);
             solutions.add(com);
         }
+        List<Integer> com = new ArrayList<Integer>();
+        int i=1;
+        while(i<n){
+            if (!used.contains(i)) {
+                com.add(i);
+            }
+            i++;
+        }
+        Collections.sort(com);
+        solutions.add(com);
+        System.out.println("used:"+used);
+
+        /*for (List f : solutions){
+
+            System.out.println("taille com fin"+f.size());
+        }*/
+
         Solutions sol = new Solutions(solutions, graph.getEdges());
         return sol;
     }
@@ -143,4 +161,5 @@ public class MockAnnealing {
             }
         }
     }
+
 }
