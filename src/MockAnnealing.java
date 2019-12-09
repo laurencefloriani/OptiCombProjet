@@ -143,4 +143,28 @@ public class MockAnnealing {
             }
         }
     }
+    public void end(){
+        Solutions sol = generateSolution();
+        File f =  new File("Solution.txt");
+        String debut = "Après utilisation de la méthode illustree , nous avons trouvé les communautés suivantes: ";
+        String after1 = "le M(P) est : " + sol.getmP();
+        try{
+            PrintWriter printer = new PrintWriter(f);
+            printer.println(debut);
+            for (List<Integer> com : sol.getSolutions()) {
+                String str = "COM : ";
+                for (int edge : com) {
+                    str += edge;
+                    str += " ";
+                }
+                str += "\n";
+                printer.println(str);
+            }
+            printer.println(after1);
+
+        } catch(IOException e){
+            System.out.printf("ERROR : %s/n",e);
+        }
+
+    }
 }
