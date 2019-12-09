@@ -7,6 +7,8 @@ public class MockAnnealing {
     private Graph graph;
     private int initTemp;
     private float MPTRESHOLD = 0.357f;
+    private Solutions bestSol;
+    private Solutions currentSol;
 
     public MockAnnealing(int initTemp, String name) {
         this.initTemp = initTemp;
@@ -15,12 +17,12 @@ public class MockAnnealing {
     }
 
     private void start() {
-        Solutions solutions = generateSolution();
-        System.out.println(solutions.toString() + " M(P) : " + solutions.getmP());
-        while(solutions.getmP() < MPTRESHOLD) {
+        bestSol = generateSolution();
+        currentSol = bestSol;
 
-            mutation(solutions);
-            System.out.println(solutions.toString() + " M(P) : " + solutions.getmP());
+        while(bestSol.getmP() < MPTRESHOLD) {
+            mutation();
+            System.out.println(bestSol.toString() + " M(P) : " + bestSol.getmP());
         }
     }
 
@@ -28,27 +30,28 @@ public class MockAnnealing {
 
 
 
-    private void mutation(Solutions solutions) {
-        
-        List<List<Integer>> list = solutions.getSolutions();
-        for(List<Integer> com : list) {
-            int friend;
-            List<Integer> friends = new ArrayList<Integer>();
-            List<Integer> ennemies = new ArrayList<Integer>();
-            for(int v : com) {
-                friends = searchBestFriend(v, graph.getMatrix(), true);
-                ennemies = searchBestFriend(v, graph.getMatrix(), false);
-            }
-            int en = ennemies.get(ThreadLocalRandom.current().nextInt(0, ennemies.size()));
-            if(com.contains(en) && com.size() > 1) {
-                int r = getIndexToRemove(com, en);
-                System.out.println("r " + r + " en " + en);
-                com.remove(r);
-            }
-            com.add(friends.get(ThreadLocalRandom.current().nextInt(0, friends.size())));
+    private void mutation() {
+        List<List<Integer>> sol = currentSol.getSolutions();
+        int numCom = ThreadLocalRandom.current().nextInt(0, sol.size());
+        int numVert = ThreadLocalRandom.current().nextInt(0, sol.get(numCom).size());
 
+        List<Integer> friends = searchBestFriend(sol.get(numCom).get(numVert), graph.getMatrix(), true);
+        int friend = friends.get(ThreadLocalRandom.current().nextInt(0, friends.size()));
+        while(sol.get(numCom).contains(friend)) {
+            friend = friends.get(ThreadLocalRandom.current().nextInt(0, friends.size()));
         }
-        solutions.setSolutions(list, graph.getEdges());
+        for (List<Integer> com2 : sol) {
+            if(com2.contains(friend)) {
+                System.out.println(friend);
+                if(com2.size() == 1) {
+                    sol.remove(com2);
+                } else {
+                    com2.remove(getIndexToRemove(com2, friend));
+                }
+            }
+        }
+        sol.get(numCom).add(friend);
+        currentSol.setSolutions(sol, graph.getEdges());
     }
 
     private int getIndexToRemove (List<Integer> list, int v) {
