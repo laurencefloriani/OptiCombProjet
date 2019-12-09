@@ -1,3 +1,4 @@
+import java.util.Iterator;
 import java.util.List;
 
 public class Solutions {
@@ -21,6 +22,7 @@ public class Solutions {
             }
             mP += temp;
         }
+        System.out.println("---------");
         return mP/(2*m);
     }
 
@@ -34,9 +36,23 @@ public class Solutions {
 
     void setSolutions(List<List<Integer>> solutions, int m) {
         this.solutions = solutions;
+        deleteEmptyList();
         this.mP = computeM(m);
     }
 
+    private void deleteEmptyList() {
+        Iterator<List<Integer>> iterator = this.solutions.iterator();
+        while (iterator.hasNext() ) {
+            List<Integer> o = iterator.next();
+            if (o.size() == 0) {
+                System.out.println(o);
+
+                // On supprime l'élément courant de la liste
+                iterator.remove();
+            }
+        }
+
+    }
     @Override
     public String toString() {
         String str = "";
