@@ -1,16 +1,19 @@
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class MockAnnealing {
+class MockAnnealing {
     private Graph graph;
     private int initTemp;
     private float MPTRESHOLD = 0.357f;
     private Solutions bestSol;
     private Solutions currentSol;
 
-    public MockAnnealing(int initTemp, String name) {
+    MockAnnealing(int initTemp, String name) {
         this.initTemp = initTemp;
         this.graph =  FilesProcessing.readFile(name);
         start();
@@ -19,37 +22,41 @@ public class MockAnnealing {
     private void start() {
         bestSol = generateSolution();
         currentSol = bestSol;
-
+        int u = 1;
         while(bestSol.getmP() < MPTRESHOLD) {
-            mutation();
+            System.out.println("itération : " + u);
+            mutation(u);
+
             System.out.println(bestSol.toString() + " M(P) : " + bestSol.getmP());
+            if(currentSol.getmP() >= bestSol.getmP()) {
+                bestSol = currentSol;
+            } else {
+                currentSol = bestSol; // Efface cet essai car il est mauvais
+            }
+            u++;
         }
     }
 
-
-
-
-
-    private void mutation() {
+    private void mutation(int u) {
         List<List<Integer>> sol = currentSol.getSolutions();
         int numCom = ThreadLocalRandom.current().nextInt(0, sol.size());
         int numVert = ThreadLocalRandom.current().nextInt(0, sol.get(numCom).size());
 
-        List<Integer> friends = searchBestFriend(sol.get(numCom).get(numVert), graph.getMatrix(), true);
+        List<Integer> friends = searchBestFriends(sol.get(numCom).get(numVert), graph.getMatrix(), true);
         int friend = friends.get(ThreadLocalRandom.current().nextInt(0, friends.size()));
-        while(sol.get(numCom).contains(friend)) {
+        List<Integer> used = new ArrayList<Integer>();
+
+        while(sol.get(numCom).contains(friend) && !used.contains(friend)) {
+            used.add(friend);
             friend = friends.get(ThreadLocalRandom.current().nextInt(0, friends.size()));
         }
         for (List<Integer> com2 : sol) {
             if(com2.contains(friend)) {
                 System.out.println(friend);
-                if(com2.size() == 1) {
-                    sol.remove(com2);
-                } else {
-                    com2.remove(getIndexToRemove(com2, friend));
-                }
+                com2.remove(getIndexToRemove(com2, friend));
             }
         }
+        System.out.println(friend);
         sol.get(numCom).add(friend);
         currentSol.setSolutions(sol, graph.getEdges());
     }
@@ -68,7 +75,7 @@ public class MockAnnealing {
 
         // Tirage aléatoire d'un nombre de communauté (si n communauté => 1 sommet par com => useless
         System.out.println(n);
-        int numberCom = ThreadLocalRandom.current().nextInt(1, n/2);
+        int numberCom = ThreadLocalRandom.current().nextInt(2, n/2);
         List<List<Integer>> solutions = new ArrayList<List<Integer>>(numberCom);
 
         // Pour chaque communauté, tirage aléatoire d'un nombre de sommets puis remplir les communautés aléatoirement
@@ -107,7 +114,7 @@ public class MockAnnealing {
         return sol;
     }
 
-    private List<Integer> searchBestFriend(int vertice, Tuple[][] matrix, boolean bool) {
+    private List<Integer> searchBestFriends(int vertice, Tuple[][] matrix, boolean bool) {
         List<Integer> temp = new ArrayList<Integer>();
         for(int i = 0; i < matrix.length; i++) {
             if(bool) {
@@ -123,26 +130,6 @@ public class MockAnnealing {
         return temp;
     }
 
-
-    private void decraeseNbrCom(Solutions solutions) {
-        List<List<Integer>> list = solutions.getSolutions();
-        if(list.size() > 1) {
-            int newNbreCom = ThreadLocalRandom.current().nextInt(0, list.size());
-            while (list.size() != newNbreCom) {
-                int indexCom1 = ThreadLocalRandom.current().nextInt(0, list.size()-1);
-                int indexCom2 = ThreadLocalRandom.current().nextInt(0, list.size()-1);
-
-                List<Integer> com = list.get(indexCom1);
-                com.addAll(list.get(indexCom2));
-
-                list.remove(indexCom1);
-                list.remove(indexCom2);
-
-                Collections.sort(com);
-                list.add(com);
-            }
-        }
-    }
     public void end(){
         Solutions sol = generateSolution();
         File f =  new File("Solution.txt");
