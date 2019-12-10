@@ -50,10 +50,11 @@ class FilesProcessing {
 
     static void writeInFile(Solutions solutions) {
         File f =  new File("Solution.txt");
-        String debut = "Après utilisation de la méthode illustree , nous avons trouvé les communautés suivantes : ";
-        String after1 = "le M(P) est : " + solutions.getmP();
+        String debut = "L'application a trouvé les communautés suivantes : ";
+        String after1 = "Avec un M(P) de : " + solutions.getmP();
+
         try{
-            PrintWriter printer = new PrintWriter(f);
+            PrintWriter printer = new PrintWriter("Solution.txt");
             printer.println(debut);
             for (List<Integer> com : solutions.getSolutions()) {
                 String str = "COM : ";
@@ -65,6 +66,7 @@ class FilesProcessing {
                 printer.println(str);
             }
             printer.println(after1);
+            printer.close();
 
         } catch(IOException e){
             System.out.printf("ERROR : %s/n",e);
