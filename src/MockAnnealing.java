@@ -22,18 +22,14 @@ class MockAnnealing {
         this.temp = graph.getEdges()*graph.getVertices();
 
         start();
-        System.out.println(bestSol.getmP());
         while (bestSol.getmP() < MPTRESHOLD) {
-            System.out.println(bestSol.getmP());
             start();
         }
-        System.out.println("La solution est : " + bestSol.getSolutions());
-        System.out.println("Avec un M(P) de : " + bestSol.getmP());
         FilesProcessing.writeInFile(bestSol);
     }
 
     private void start() {
-        this.energy = temp*3;
+        this.energy = temp*2;
         this.nbreRep = 0;
 
         bestSol = generateSolution();
@@ -41,8 +37,6 @@ class MockAnnealing {
         int u = 1;
 
         while(energy > temp) {
-            System.out.println("Itération : " + u);
-            System.out.println(bestSol.toString() + "    M(P) : " + bestSol.getmP());
             float oldMP = bestSol.getmP();
             if(bestSol.getSolutions().size() == 1) {
                 bestSol = generateSolution();
@@ -58,7 +52,6 @@ class MockAnnealing {
             updateEnergy(oldMP, newMP);
             updateTemp();
             u++;
-            System.out.println("en " + energy + " t " + temp);
         }
     }
 
@@ -151,7 +144,7 @@ class MockAnnealing {
         List<Integer> used = new ArrayList<Integer>(n);
 
         // Tirage aléatoire d'un nombre de communauté (si n communauté => 1 sommet par com => useless
-        int numberCom = ThreadLocalRandom.current().nextInt(2, n/2);
+        int numberCom = ThreadLocalRandom.current().nextInt(2, n/3);
         List<List<Integer>> solutions = new ArrayList<List<Integer>>(numberCom);
 
         // Pour chaque communauté, tirage aléatoire d'un nombre de sommets puis remplir les communautés aléatoirement
