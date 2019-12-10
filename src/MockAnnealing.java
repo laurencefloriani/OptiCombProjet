@@ -12,6 +12,7 @@ class MockAnnealing {
     private float energy;
     private Solutions bestSol;
     private Solutions currentSol;
+    private int nbreRep;
 
     private float MPTRESHOLD = 0.357f;
     private float LAMBDA = 0.99f;
@@ -19,10 +20,11 @@ class MockAnnealing {
     MockAnnealing(String name) {
         this.graph =  FilesProcessing.readFile(name);
         this.temp = graph.getEdges()*graph.getVertices();
-        this.energy = temp*4;
+
         start();
         System.out.println(bestSol.getmP());
-        if(bestSol.getmP() < MPTRESHOLD) {
+        while (bestSol.getmP() < MPTRESHOLD) {
+            System.out.println(bestSol.getmP());
             start();
         }
         System.out.println("La solution est : " + bestSol.getSolutions());
@@ -31,31 +33,46 @@ class MockAnnealing {
     }
 
     private void start() {
+        this.energy = temp*3;
+        this.nbreRep = 0;
+
         bestSol = generateSolution();
         currentSol = bestSol.copy();
         int u = 1;
 
         while(energy > temp) {
-            System.out.println("itération : " + u);
+            System.out.println("Itération : " + u);
             System.out.println(bestSol.toString() + "    M(P) : " + bestSol.getmP());
             float oldMP = bestSol.getmP();
-            int nbre = ThreadLocalRandom.current().nextInt(1, bestSol.getSolutions().size());
-            mutation();
-
-            float newMP;
-            if(currentSol.getmP() >= bestSol.getmP()) {
-                bestSol = currentSol.copy();
-                newMP = bestSol.getmP();
-            } else {
-                currentSol = bestSol.copy(); // Efface cet essai car il est mauvais
-                newMP = bestSol.getmP();
+            if(bestSol.getSolutions().size() == 1) {
+                bestSol = generateSolution();
             }
+            int nbre = ThreadLocalRandom.current().nextInt(1, bestSol.getSolutions().size());
+            while (nbre >= 0) { // Pour effectuer un nbre aléatoire de mutation lors d'une itération
+                mutation();
+                nbre -= 1;
+            }
+
+            float newMP = updateSol();
+
             updateEnergy(oldMP, newMP);
             updateTemp();
             u++;
-            System.out.println(energy > temp);
             System.out.println("en " + energy + " t " + temp);
         }
+    }
+
+    private float updateSol() {
+        float newMP;
+
+        if(currentSol.getmP() >= bestSol.getmP()) {
+            bestSol = currentSol.copy();
+            newMP = bestSol.getmP();
+        } else {
+            currentSol = bestSol.copy(); // Efface cet essai car il est mauvais
+            newMP = bestSol.getmP();
+        }
+        return newMP;
     }
 
     private void updateTemp () {
@@ -66,8 +83,17 @@ class MockAnnealing {
         float deltaEn = newMP - oldMP;
         if (deltaEn < 0) {
             energy += deltaEn;
+            this.nbreRep = 0;
+        } else if (deltaEn == 0) {
+            this.nbreRep += 1;
+            if(this.nbreRep > 3) {
+                currentSol = generateSolution();
+                updateSol();
+            }
+            energy -= (float) Math.exp(nbreRep);
         } else {
             energy += (float) Math.exp(-(deltaEn)/temp);
+            this.nbreRep = 0;
         }
     }
 
@@ -76,7 +102,8 @@ class MockAnnealing {
         int numCom = ThreadLocalRandom.current().nextInt(0, sol.size());
         int numVert = ThreadLocalRandom.current().nextInt(0, sol.get(numCom).size());
 
-        List<Integer> friends = searchBestFriends(sol.get(numCom).get(numVert), graph.getMatrix());
+        // Essayer d'ajouter au moins un ami
+        List<Integer> friends = searchBestFriends(sol.get(numCom).get(numVert), graph.getMatrix(), true);
         int friend = friends.get(ThreadLocalRandom.current().nextInt(0, friends.size()));
         List<Integer> used = new ArrayList<Integer>();
 
@@ -84,15 +111,30 @@ class MockAnnealing {
             used.add(friend);
             friend = friends.get(ThreadLocalRandom.current().nextInt(0, friends.size()));
         }
-        for (List<Integer> com2 : sol) {
-            if(com2.contains(friend)) {
-                com2.remove(getIndexToRemove(com2, friend));
+        if (!sol.get(numCom).contains(friend)) {
+            for (List<Integer> com2 : sol) {
+                if (com2.contains(friend)) {
+                    com2.remove(getIndexToRemove(com2, friend));
+                }
             }
+            sol.get(numCom).add(friend);
         }
-        sol.get(numCom).add(friend);
-        for(List<Integer> com : sol) {
-            Collections.sort(com);
+
+        // Essaie de retirer un ennemi
+        List<Integer> ennemies = searchBestFriends(sol.get(numCom).get(numVert), graph.getMatrix(), false);
+        int ennemy = ennemies.get(ThreadLocalRandom.current().nextInt(0, ennemies.size()));
+        List<Integer> alreadyTested = new ArrayList<Integer>();
+        int numCom2 = ThreadLocalRandom.current().nextInt(0, sol.size());
+
+        while(!sol.get(numCom).contains(ennemy) && !alreadyTested.contains(ennemy)) { // S'assurer que celui qu'on veut retirer est dans la communauté
+            ennemy = ennemies.get(ThreadLocalRandom.current().nextInt(0, ennemies.size()));
+            alreadyTested.add(ennemy);
         }
+        if (sol.get(numCom).contains(ennemy)) {
+            sol.get(numCom2).add(ennemy);
+            sol.get(numCom).remove(getIndexToRemove(sol.get(numCom), ennemy));
+        }
+
         currentSol.setSolutions(sol, graph.getEdges());
     }
 
@@ -158,10 +200,12 @@ class MockAnnealing {
         return new Solutions(solutions, graph.getEdges());
     }
 
-    private List<Integer> searchBestFriends(int vertice, Tuple[][] matrix) {
+    private List<Integer> searchBestFriends(int vertice, Tuple[][] matrix, boolean bool) {
         List<Integer> temp = new ArrayList<Integer>();
         for(int i = 0; i < matrix.length; i++) {
-            if (matrix[vertice - 1][i].getLinked() == 1) {
+            if (matrix[vertice - 1][i].getLinked() == 1 && bool) {
+                temp.add(i + 1);
+            } else if (matrix[vertice - 1][i].getLinked() == 0 && !bool){
                 temp.add(i + 1);
             }
         }

@@ -1,5 +1,8 @@
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Solutions {
     private List<List<Integer>> solutions;
@@ -10,6 +13,8 @@ public class Solutions {
         this.solutions = solutions;
         this.m = m;
         this.mP = computeM();
+        deleteListWithOnlyOne();
+        deleteEmptyList();
     }
 
     private float computeM(){
@@ -37,8 +42,13 @@ public class Solutions {
 
     void setSolutions(List<List<Integer>> solutions, int m) {
         this.solutions = solutions;
+        deleteListWithOnlyOne();
         deleteEmptyList();
         this.mP = computeM();
+        // Trier chaque communautés
+        for(List<Integer> com : this.solutions) {
+            Collections.sort(com);
+        }
     }
 
     private void deleteEmptyList() {
@@ -49,6 +59,25 @@ public class Solutions {
                 // On supprime l'élément courant de la liste
                 iterator.remove();
             }
+        }
+    }
+
+    private void deleteListWithOnlyOne() {
+        Iterator<List<Integer>> iterator = this.solutions.iterator();
+        List<Integer> com = new ArrayList<Integer>();
+        while (iterator.hasNext() ) {
+            List<Integer> o = iterator.next();
+            if (o.size() == 1) {
+                com.add(o.get(0));
+                // On supprime l'élément courant de la liste
+                iterator.remove();
+            }
+        }
+        if (com.size() == 1) {
+            int numCom = ThreadLocalRandom.current().nextInt(0, this.solutions.size());
+            this.solutions.get(numCom).add(com.get(0));
+        } else {
+            this.solutions.add(com);
         }
     }
 
