@@ -14,7 +14,7 @@ class MockAnnealing {
     private Solutions currentSol;
     private int nbreRep;
 
-    private float MPTRESHOLD = 0.357f;
+    private float MPTRESHOLD = 0.37f;
     private float LAMBDA = 0.99f;
 
     MockAnnealing(String name) {
@@ -22,9 +22,10 @@ class MockAnnealing {
         this.temp = graph.getEdges()*graph.getVertices();
 
         start();
-        while (bestSol.getmP() < MPTRESHOLD) {
+/**        while (bestSol.getmP() < MPTRESHOLD) {
             start();
-        }
+        }**/
+        System.out.println(bestSol.getmP());
         FilesProcessing.writeInFile(bestSol);
     }
 
@@ -35,8 +36,9 @@ class MockAnnealing {
         bestSol = generateSolution();
         currentSol = bestSol.copy();
         int u = 1;
+        System.out.println(bestSol.getmP());
 
-        while(energy > temp) {
+        while(energy > temp ) {
             float oldMP = bestSol.getmP();
             if(bestSol.getSolutions().size() == 1) {
                 bestSol = generateSolution();

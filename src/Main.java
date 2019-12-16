@@ -5,6 +5,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Main {
 
     public static void main(String[] args) {
-        MockAnnealing mock = new MockAnnealing("assets/instance5");
+        MockAnnealing mock = new MockAnnealing("assets/c3");
     }
 }
